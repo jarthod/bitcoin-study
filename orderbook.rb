@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-Bundler.require(:default)
+require 'bitstamp'
+require 'moped'
 
 def group book
   cum_volume = 0

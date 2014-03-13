@@ -111,12 +111,17 @@ get '/' do
   erb :index
 end
 
-get '/bids.tsv' do
-  out = ["price\tvolume"]
+get '/data.tsv' do
+  out = ["price\tbid\task"]
   cum_vol = 0
-  order_book[:bids].each do |p, v|
+  out += order_book[:bids].map do |p, v|
     cum_vol += v
-    out << "#{p}\t#{cum_vol}"
+    "#{p}\t#{cum_vol}\t0"
+  end.reverse
+  cum_vol = 0
+  order_book[:asks].each do |p, v|
+    cum_vol += v
+    out << "#{p}\t0\t#{cum_vol}"
   end
   out.join("\n")
 end

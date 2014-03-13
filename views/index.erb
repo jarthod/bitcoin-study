@@ -48,26 +48,52 @@
         .y0(height)
         .y1(function(d) { return y(d.volume); });
 
+    var stack = d3.layout.stack()
+        .values(function(d) { return d.values; });
+
     var svg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.tsv("bids.tsv", function(error, data) {
+    d3.tsv("data.tsv", function(error, data) {
+
       data.forEach(function(d) {
         d.price = +d.price;
-        d.volume = +d.volume;
-        console.log(d);
+        d.ask = +d.ask;
+        d.bid = +d.bid;
       });
 
-      x.domain(d3.extent(data, function(d) { return d.price; }));
-      y.domain([0, d3.max(data, function(d) { return d.volume; })]);
+      var order_book = stack([
+        {
+          name: 'bid',
+          color: '#5c0',
+          values: data.map(function(d) {
+            return {price: d.price, volume: d.bid};
+          })
+        },
+        {
+          name: 'ask',
+          color: '#f42',
+          values: data.map(function(d) {
+            return {price: d.price, volume: d.ask};
+          })
+        }
+      ]);
 
-      svg.append("path")
-          .datum(data)
+      x.domain(d3.extent(data, function(d) { return d.price; }));
+      y.domain([0, d3.max(data, function(d) { return Math.max(d.bid, d.ask); })]);
+
+      var side = svg.selectAll(".side")
+          .data(order_book)
+        .enter().append("g")
+          .attr("class", "side");
+
+      side.append("path")
           .attr("class", "area")
-          .attr("d", area);
+          .attr("d", function(d) { return area(d.values); })
+          .style("fill", function(d) { return d.color });
 
       svg.append("g")
           .attr("class", "x axis")
@@ -77,12 +103,6 @@
       svg.append("g")
           .attr("class", "y axis")
           .call(yAxis)
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("Price ($)");
     });
 
     </script>
