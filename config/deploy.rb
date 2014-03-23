@@ -46,6 +46,9 @@ task :deploy => :environment do
     invoke :'git:clone'
     invoke :'deploy:link_shared_paths'
     invoke :'bundle:install'
-    invoke :'deploy:cleanup'
+
+    to :launch do
+      invoke :'deploy:cleanup'
+    end
   end
 end
