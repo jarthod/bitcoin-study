@@ -1,6 +1,7 @@
 require 'mina/bundler'
 require 'mina/git'
 require 'mina/rbenv'  # for rbenv support. (http://rbenv.org)
+require 'mina/whenever'
 
 # Basic settings:
 #   domain       - The hostname to SSH to.
@@ -16,7 +17,7 @@ set :branch, 'master'
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
-set :shared_paths, ['log', 'tmp']
+set :shared_paths, ['log', 'tmp', '.env']
 
 # This task is the environment that is loaded for most commands, such as
 # `mina deploy` or `mina rake`.
@@ -48,6 +49,7 @@ task :deploy => :environment do
     invoke :'bundle:install'
 
     to :launch do
+      invoke :'whenever:update'
       invoke :'deploy:cleanup'
     end
   end

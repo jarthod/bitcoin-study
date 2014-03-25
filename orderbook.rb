@@ -3,6 +3,8 @@
 require 'bundler/setup'
 require 'bitstamp'
 require 'moped'
+require 'dotenv'
+Dotenv.load
 
 def group book
   cum_volume = 0
